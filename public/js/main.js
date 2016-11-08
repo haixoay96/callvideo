@@ -1,4 +1,4 @@
-v/*ar config = {
+/*var config = {
     'iceServers': [{
         'url': 'stun:stun.l.google.com:19302'
     }]
