@@ -3,6 +3,7 @@ var config = {
         'url': 'stun:stun.l.google.com:19302'
     }]
 };
+
 var config = null;
 var constraints = {
     offerToReceiveAudio: 1,
