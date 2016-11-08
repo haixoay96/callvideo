@@ -1,8 +1,8 @@
-var config = {
+v/*ar config = {
     'iceServers': [{
         'url': 'stun:stun.l.google.com:19302'
     }]
-};
+};*/
 
 var config = null;
 var constraints = {
