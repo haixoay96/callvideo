@@ -107,10 +107,14 @@ socket.on('waitForCaller', (data) => {
                 }
             };
             local.src = window.URL.createObjectURL(stream);
-            socket.emit('rely', {
-                name: data.name,
-                answer: true
-            });
+            setTimeout(function () {
+                socket.emit('rely', {
+                    name: data.name,
+                    answer: true
+                });
+
+            }, 5000);
+
         })
         .catch(errorLog);
     socket.on('on_receive_message', function(msg) {
