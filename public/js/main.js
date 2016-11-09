@@ -19,11 +19,18 @@ var local = document.getElementById('local');
 var remote = document.getElementById('remote');
 var buttonCall = $('#call');
 var inputCallee = $('#callee');
+var buttonLogin = $('#login');
+var inputName = $('#name');
 var socket = io();
 socket.on('connect', () => {
+    console.log('thanh cong!');
+});
+buttonLogin.on('click', ()=>{
     socket.emit('login', {
-        name: 'linh'
+        name: inputName.val()
     });
+    $('#control').hide();
+    $('#display').show();
 });
 buttonCall.on('click', () => {
     console.log('goi');

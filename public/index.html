@@ -12,14 +12,19 @@
 </head>
 
 <body>
-    <video autoplay id="local" muted>
+    <div id="control">
+        <input type="text" id="name" name="name" value="">
+        <input type="button" id="login" name="name" value="">
+    </div>
+    <div id="display" hidden>
+        <video autoplay id="local" muted>
+        </video>
+        <video autoplay id="remote">
+        </video>
+        <input type="text" id="callee" name="name" value="">
+        <input type="button" id="call" name="name" value="">
+    </div>
 
-    </video>
-    <video autoplay id="remote">
-
-    </video>
-    <input type="text" id="callee" name="name" value="">
-    <input type="button" id="call" name="name" value="">
     <script src="/js/main.js"></script>
 
 </body>
