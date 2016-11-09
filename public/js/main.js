@@ -1,6 +1,14 @@
 var config = {
     'iceServers': [{
         'url': 'stun:stun.l.google.com:19302'
+    }, {
+        // 'urls' : 'turn:54.238.175.111:3478',
+        // 'username' : 'callwork',
+        // 'credential' : 'beetsoft123'
+        'urls': 'turn:numb.viagenie.ca:3478',
+        'username': 'quynhnm.bkit@gmail.com',
+        'credential': '123456'
+
     }]
 };
 var constraints = {
