@@ -1,7 +1,7 @@
 var config = {
-    'iceServers': [/*{
-        'url': 'stun:stun.l.google.com:19302'
-    },*/ {
+    'iceServers': [{
+        'urls': 'stun:stun.l.google.com:19302'
+    }, {
         // 'urls' : 'turn:54.238.175.111:3478',
         // 'username' : 'callwork',
         // 'credential' : 'beetsoft123'
@@ -25,7 +25,7 @@ var socket = io();
 socket.on('connect', () => {
     console.log('thanh cong!');
 });
-buttonLogin.on('click', ()=>{
+buttonLogin.on('click', () => {
     socket.emit('login', {
         name: inputName.val()
     });
@@ -57,15 +57,13 @@ buttonCall.on('click', () => {
                     }
                 };
                 local.src = window.URL.createObjectURL(stream);
-                setTimeout(function () {
-                    pc.createOffer(constraints)
-                        .then(function(offer) {
-                            console.log("Create offer for ", name);
-                            pc.setLocalDescription(offer);
-                            sendMessage(name, "offer", offer);
-                        })
-                        .catch(errorLog);
-                }, 5000);
+                pc.createOffer(constraints)
+                    .then(function(offer) {
+                        console.log("Create offer for ", name);
+                        pc.setLocalDescription(offer);
+                        sendMessage(name, "offer", offer);
+                    })
+                    .catch(errorLog);
 
             })
             .catch(errorLog);
@@ -107,13 +105,11 @@ socket.on('waitForCaller', (data) => {
                 }
             };
             local.src = window.URL.createObjectURL(stream);
-            setTimeout(function () {
-                socket.emit('rely', {
-                    name: data.name,
-                    answer: true
-                });
+            socket.emit('rely', {
+                name: data.name,
+                answer: true
+            });
 
-            }, 5000);
 
         })
         .catch(errorLog);
