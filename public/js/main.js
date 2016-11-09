@@ -29,14 +29,7 @@ buttonCall.on('click', () => {
     console.log('goi');
     var name = inputCallee.val();
     var pc = new RTCPeerConnection(config);
-    pc.onaddstream = handleRemoteStream;
-    pc.oniceconnectionstatechange = handleIceConnectionStateChange;
-    pc.onicecandidate = function(event) {
-        if (event.candidate) {
-            console.log("handleIceCandidate");
-            sendMessage(name, "candidate", event.candidate);
-        }
-    };
+
 
     socket.emit('call', {
         name: name
@@ -48,6 +41,14 @@ buttonCall.on('click', () => {
             })
             .then((stream) => {
                 pc.addStream(stream);
+                pc.onaddstream = handleRemoteStream;
+                pc.oniceconnectionstatechange = handleIceConnectionStateChange;
+                pc.onicecandidate = function(event) {
+                    if (event.candidate) {
+                        console.log("handleIceCandidate");
+                        sendMessage(name, "candidate", event.candidate);
+                    }
+                };
                 local.src = window.URL.createObjectURL(stream);
                 pc.createOffer(constraints)
                     .then(function(offer) {
@@ -80,20 +81,21 @@ buttonCall.on('click', () => {
 socket.on('waitForCaller', (data) => {
     console.log('nhan');
     var pc = new RTCPeerConnection(config);
-    pc.onaddstream = handleRemoteStream;
-    pc.oniceconnectionstatechange = handleIceConnectionStateChange;
-    pc.onicecandidate = function(event) {
-        if (event.candidate) {
-            console.log("handleIceCandidate");
-            sendMessage(name, "candidate", event.candidate);
-        }
-    };
+
     navigator.mediaDevices.getUserMedia({
             "audio": true,
             "video": true
         })
         .then((stream) => {
             pc.addStream(stream);
+            pc.onaddstream = handleRemoteStream;
+            pc.oniceconnectionstatechange = handleIceConnectionStateChange;
+            pc.onicecandidate = function(event) {
+                if (event.candidate) {
+                    console.log("handleIceCandidate");
+                    sendMessage(name, "candidate", event.candidate);
+                }
+            };
             local.src = window.URL.createObjectURL(stream);
             socket.emit('rely', {
                 name: data.name,
