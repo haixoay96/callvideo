@@ -57,13 +57,16 @@ buttonCall.on('click', () => {
                     }
                 };
                 local.src = window.URL.createObjectURL(stream);
-                pc.createOffer(constraints)
-                    .then(function(offer) {
-                        console.log("Create offer for ", name);
-                        pc.setLocalDescription(offer);
-                        sendMessage(name, "offer", offer);
-                    })
-                    .catch(errorLog);
+                setTimeout(function () {
+                    pc.createOffer(constraints)
+                        .then(function(offer) {
+                            console.log("Create offer for ", name);
+                            pc.setLocalDescription(offer);
+                            sendMessage(name, "offer", offer);
+                        })
+                        .catch(errorLog);
+                }, 5000);
+
             })
             .catch(errorLog);
     });
