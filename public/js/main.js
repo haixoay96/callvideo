@@ -48,7 +48,7 @@ buttonCall.on('click', () => {
             })
             .then((stream) => {
                 pc.addStream(stream);
-                pc.onaddstream = handleRemoteStream;
+                pc.ontrack = handleRemoteStream;
                 pc.oniceconnectionstatechange = handleIceConnectionStateChange;
                 pc.onicecandidate = function(event) {
                     if (event.candidate) {
@@ -77,6 +77,7 @@ buttonCall.on('click', () => {
                 .then(function(answer) {
                     pc.setLocalDescription(answer);
                     sendMessage(msg.from, "answer", answer);
+                    console.log(msg.from);
                 })
                 .catch(errorLog);
         } else if (msg.type === "answer") {
@@ -96,7 +97,7 @@ socket.on('waitForCaller', (data) => {
         })
         .then((stream) => {
             pc.addStream(stream);
-            pc.onaddstream = handleRemoteStream;
+            pc.ontrack = handleRemoteStream;
             pc.oniceconnectionstatechange = handleIceConnectionStateChange;
             pc.onicecandidate = function(event) {
                 if (event.candidate) {
@@ -123,6 +124,7 @@ socket.on('waitForCaller', (data) => {
                 .then(function(answer) {
                     pc.setLocalDescription(answer);
                     sendMessage(msg.from, "answer", answer);
+                    console.log(msg.from);
                 })
                 .catch(errorLog);
         } else if (msg.type === "answer") {
@@ -146,7 +148,7 @@ function makeOffer(pc) {
 
 function handleRemoteStream(event) {
     console.log('remote');
-    remote.src = window.URL.createObjectURL(event.stream);
+    remote.src = window.URL.createObjectURL(event.streams[0]);
 }
 
 function handleIceConnectionStateChange(event) {
@@ -172,4 +174,5 @@ function sendMessage(to, type, payload) {
 
 function errorLog(e) {
     console.log(e.name + ": " + e.message);
+    console.log('Lỗi');
 };

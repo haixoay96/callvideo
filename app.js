@@ -7,6 +7,7 @@ server.listen(process.env.PORT ||3000, () => {
 });
 app.use('/', express.static('public'));
 app.use('/', express.static('node_modules/jquery/dist'));
+app.use('/', express.static('node_modules/webrtc-adapter'));
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/public/index.html');
 });
