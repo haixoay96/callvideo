@@ -90,7 +90,7 @@ buttonCall.on('click', () => {
 socket.on('waitForCaller', (data) => {
     console.log('nhan');
     var pc = new RTCPeerConnection(config);
-
+    var name = data.name;
     navigator.mediaDevices.getUserMedia({
             "audio": true,
             "video": true
