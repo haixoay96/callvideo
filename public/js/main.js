@@ -12,6 +12,7 @@
     }]
 };
 */
+var config = null;
 /*var config =  {
   'iceServers': [
     {
