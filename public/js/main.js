@@ -1,4 +1,4 @@
-/*var config = {
+var config = {
     'iceServers': [{
         'urls': 'stun:stun.l.google.com:19302'
     }, {
@@ -6,12 +6,12 @@
         // 'username' : 'callwork',
         // 'credential' : 'beetsoft123'
         'urls': 'turn:numb.viagenie.ca:3478',
-        'username': 'quynhnm.bkit@gmail.com',
+        'username': 'haixoay96@gmail.com',
         'credential': '123456'
 
     }]
-};*/
-var config =  {
+};
+/*var config =  {
   'iceServers': [
     {
       'url': 'stun:stun.l.google.com:19302'
@@ -27,7 +27,7 @@ var config =  {
       'username': '28224511:1379330808'
     }
   ]
-};
+};*/
 var constraints = {
     offerToReceiveAudio: 1,
     offerToReceiveVideo: 1
