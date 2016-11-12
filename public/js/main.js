@@ -1,4 +1,4 @@
-var config = {
+/*var config = {
     'iceServers': [{
         'urls': 'stun:stun.l.google.com:19302'
     }, {
@@ -10,6 +10,23 @@ var config = {
         'credential': '123456'
 
     }]
+};*/
+var config =  {
+  'iceServers': [
+    {
+      'url': 'stun:stun.l.google.com:19302'
+    },
+    {
+      'url': 'turn:192.158.29.39:3478?transport=udp',
+      'credential': 'JZEOEt2V3Qb0y27GRntt2u2PAYA=',
+      'username': '28224511:1379330808'
+    },
+    {
+      'url': 'turn:192.158.29.39:3478?transport=tcp',
+      'credential': 'JZEOEt2V3Qb0y27GRntt2u2PAYA=',
+      'username': '28224511:1379330808'
+    }
+  ]
 };
 var constraints = {
     offerToReceiveAudio: 1,
@@ -53,6 +70,7 @@ buttonCall.on('click', () => {
                 pc.onicecandidate = function(event) {
                     if (event.candidate) {
                         console.log("handleIceCandidate");
+                        console.log(name);
                         sendMessage(name, "candidate", event.candidate);
                     }
                 };
@@ -61,6 +79,7 @@ buttonCall.on('click', () => {
                     .then(function(offer) {
                         console.log("Create offer for ", name);
                         pc.setLocalDescription(offer);
+                        console.log(name);
                         sendMessage(name, "offer", offer);
                     })
                     .catch(errorLog);
@@ -76,8 +95,8 @@ buttonCall.on('click', () => {
             pc.createAnswer()
                 .then(function(answer) {
                     pc.setLocalDescription(answer);
-                    sendMessage(msg.from, "answer", answer);
-                    console.log(msg.from);
+                    sendMessage(name, "answer", answer);
+                    console.log(name);
                 })
                 .catch(errorLog);
         } else if (msg.type === "answer") {
@@ -103,6 +122,7 @@ socket.on('waitForCaller', (data) => {
                 if (event.candidate) {
                     console.log("handleIceCandidate");
                     sendMessage(name, "candidate", event.candidate);
+                    console.log(name);
                 }
             };
             local.src = window.URL.createObjectURL(stream);
@@ -123,8 +143,8 @@ socket.on('waitForCaller', (data) => {
             pc.createAnswer()
                 .then(function(answer) {
                     pc.setLocalDescription(answer);
-                    sendMessage(msg.from, "answer", answer);
-                    console.log(msg.from);
+                    sendMessage(name, "answer", answer);
+                    console.log(name);
                 })
                 .catch(errorLog);
         } else if (msg.type === "answer") {
