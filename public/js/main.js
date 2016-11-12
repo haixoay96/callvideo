@@ -1,7 +1,7 @@
-var config = {
-    'iceServers': [/*{
+/*var config = {
+    'iceServers': [{
         'urls': 'stun:stun.l.google.com:19302'
-    }, */{
+    }, {
         // 'urls' : 'turn:54.238.175.111:3478',
         // 'username' : 'callwork',
         // 'credential' : 'beetsoft123'
@@ -11,6 +11,7 @@ var config = {
 
     }]
 };
+*/
 /*var config =  {
   'iceServers': [
     {
