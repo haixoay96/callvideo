@@ -5,12 +5,13 @@ var io = require('socket.io')(server);
 server.listen(process.env.PORT ||3000, () => {
     console.log('Server running at port 3000!');
 });
-app.use('/', express.static('public'));
-app.use('/', express.static('node_modules/jquery/dist'));
-app.use('/', express.static('node_modules/webrtc-adapter'));
+app.use('/', express.static(__dirname+ '/public'));
+app.use('/', express.static(__dirname+  '/node_modules/jquery/dist'));
+app.use('/', express.static(__dirname+ '/node_modules/webrtc-adapter'));
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/public/index.html');
 });
+console.log(__dirname);
 var list = [];
 var _ = require('lodash');
 io.on('connection', (socket) => {
