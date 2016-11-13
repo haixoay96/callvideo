@@ -2,9 +2,6 @@ var config = {
     'iceServers': [{
         'urls': 'stun:stun.l.google.com:19302'
     }, {
-        // 'urls' : 'turn:54.238.175.111:3478',
-        // 'username' : 'callwork',
-        // 'credential' : 'beetsoft123'
         'urls': 'turn:numb.viagenie.ca:3478',
         'username': 'haixoay96@gmail.com',
         'credential': '123456'
@@ -12,23 +9,6 @@ var config = {
     }]
 };
 
-/*var config =  {
-  'iceServers': [
-    {
-      'url': 'stun:stun.l.google.com:19302'
-    },
-    {
-      'url': 'turn:192.158.29.39:3478?transport=udp',
-      'credential': 'JZEOEt2V3Qb0y27GRntt2u2PAYA=',
-      'username': '28224511:1379330808'
-    },
-    {
-      'url': 'turn:192.158.29.39:3478?transport=tcp',
-      'credential': 'JZEOEt2V3Qb0y27GRntt2u2PAYA=',
-      'username': '28224511:1379330808'
-    }
-  ]
-};*/
 var constraints = {
     offerToReceiveAudio: 1,
     offerToReceiveVideo: 1
