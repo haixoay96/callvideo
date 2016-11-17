@@ -57,9 +57,10 @@ buttonCall.on('click', function() {
                 .then(function(stream) {
                     pc.addStream(stream);
                     local.src = window.URL.createObjectURL(stream);
+                    socket.emit('callerReady');
                 })
                 .catch(errorLog);
-            socket.once('ready', function(data) {
+            socket.once('calleeReady', function(data) {
                 pc.createOffer(constraints)
                     .then(function(offer) {
                         console.log("Create offer for ", name);
@@ -107,16 +108,21 @@ socket.on('waitForCaller', (data) => {
         name: data.name,
         answer: true
     });
-    navigator.mediaDevices.getUserMedia({
-            "audio": true,
-            "video": true
-        })
-        .then((stream) => {
-            pc.addStream(stream);
-            local.src = window.URL.createObjectURL(stream);
-            socket.emit('ready');
-        })
-        .catch(errorLog);
+    socket.once('callerReady', function () {
+        navigator.mediaDevices.getUserMedia({
+                "audio": true,
+                "video": true
+            })
+            .then((stream) => {
+                pc.addStream(stream);
+                local.src = window.URL.createObjectURL(stream);
+                socket.emit('calleeReady');
+            })
+            .catch(errorLog);
+
+
+    });
+
     socket.on('on_receive_message', function(msg) {
         if (msg.type === "candidate") {
             pc.addIceCandidate(new RTCIceCandidate(msg.payload));

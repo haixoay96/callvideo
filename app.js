@@ -34,11 +34,14 @@ io.on('connection', (socket) => {
         socket.broadcast.to(data.name).emit('waitForCaller', {
             name: list[index].name
         });
+        socket.once('callerReady', ()=>{
+            socket.broadcast.to(data.name).emit('callerReady');
+        });
         console.log(data.name + ' ' + list[index].name);
     });
     socket.on('rely', (data) => {
-        socket.once('ready', () => {
-            socket.broadcast.to(data.name).emit('ready');
+        socket.once('calleeReady', () => {
+            socket.broadcast.to(data.name).emit('calleeReady');
         });
         socket.broadcast.to(data.name).emit('resultCall', {
             answer: data.answer
