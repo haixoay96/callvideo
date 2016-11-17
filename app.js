@@ -2,12 +2,12 @@ var express = require('express');
 var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
-server.listen(process.env.PORT ||3000, () => {
+server.listen(process.env.PORT || 3000, () => {
     console.log('Server running at port 3000!');
 });
-app.use('/', express.static(__dirname+ '/public'));
-app.use('/', express.static(__dirname+  '/node_modules/jquery/dist'));
-app.use('/', express.static(__dirname+ '/node_modules/webrtc-adapter'));
+app.use('/', express.static(__dirname + '/public'));
+app.use('/', express.static(__dirname + '/node_modules/jquery/dist'));
+app.use('/', express.static(__dirname + '/node_modules/webrtc-adapter'));
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/public/index.html');
 });
@@ -28,7 +28,7 @@ io.on('connection', (socket) => {
         var index = _.findIndex(list, {
             socket: socket.id
         });
-        if(index===-1){
+        if (index === -1) {
             return;
         }
         socket.broadcast.to(data.name).emit('waitForCaller', {
@@ -37,6 +37,9 @@ io.on('connection', (socket) => {
         console.log(data.name + ' ' + list[index].name);
     });
     socket.on('rely', (data) => {
+        socket.once('ready', () => {
+            socket.broadcast.to(data.name).emit('ready');
+        });
         socket.broadcast.to(data.name).emit('resultCall', {
             answer: data.answer
         });
@@ -45,7 +48,7 @@ io.on('connection', (socket) => {
         var index = _.findIndex(list, {
             socket: socket.id
         });
-        if(index===-1){
+        if (index === -1) {
             return;
         }
         var to = data.to;
@@ -57,10 +60,10 @@ io.on('connection', (socket) => {
         var index = _.findIndex(list, {
             socket: socket.id
         });
-        if(index===-1){
+        if (index === -1) {
             return;
         }
-        list.splice(index,1);
+        list.splice(index, 1);
         console.log(list);
     });
 });

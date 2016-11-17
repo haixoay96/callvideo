@@ -30,32 +30,36 @@ buttonLogin.on('click', () => {
     $('#control').hide();
     $('#display').show();
 });
-buttonCall.on('click', () => {
+buttonCall.on('click', function() {
     console.log('goi');
     var name = inputCallee.val();
     var pc = new RTCPeerConnection(config);
 
-
     socket.emit('call', {
         name: name
     });
-    socket.on('resultCall', (data) => {
-        navigator.mediaDevices.getUserMedia({
-                "audio": true,
-                "video": true
-            })
-            .then((stream) => {
-                pc.addStream(stream);
-                pc.ontrack = handleRemoteStream;
-                pc.oniceconnectionstatechange = handleIceConnectionStateChange;
-                pc.onicecandidate = function(event) {
-                    if (event.candidate) {
-                        console.log("handleIceCandidate");
-                        console.log(name);
-                        sendMessage(name, "candidate", event.candidate);
-                    }
-                };
-                local.src = window.URL.createObjectURL(stream);
+
+    socket.on('resultCall', function(data) {
+        if (data.answer === true) {
+            pc.ontrack = handleRemoteStream;
+            pc.oniceconnectionstatechange = handleIceConnectionStateChange;
+            pc.onicecandidate = function(event) {
+                if (event.candidate) {
+                    console.log("handleIceCandidate");
+                    console.log(name);
+                    sendMessage(name, "candidate", event.candidate);
+                }
+            };
+            navigator.mediaDevices.getUserMedia({
+                    "audio": true,
+                    "video": true
+                })
+                .then(function(stream) {
+                    pc.addStream(stream);
+                    local.src = window.URL.createObjectURL(stream);
+                })
+                .catch(errorLog);
+            socket.once('ready', function(data) {
                 pc.createOffer(constraints)
                     .then(function(offer) {
                         console.log("Create offer for ", name);
@@ -64,9 +68,8 @@ buttonCall.on('click', () => {
                         sendMessage(name, "offer", offer);
                     })
                     .catch(errorLog);
-
-            })
-            .catch(errorLog);
+            });
+        }
     });
     socket.on('on_receive_message', function(msg) {
         if (msg.type === "candidate") {
@@ -91,28 +94,27 @@ socket.on('waitForCaller', (data) => {
     console.log('nhan');
     var pc = new RTCPeerConnection(config);
     var name = data.name;
+    pc.ontrack = handleRemoteStream;
+    pc.oniceconnectionstatechange = handleIceConnectionStateChange;
+    pc.onicecandidate = function(event) {
+        if (event.candidate) {
+            console.log("handleIceCandidate");
+            sendMessage(name, "candidate", event.candidate);
+            console.log(name);
+        }
+    };
+    socket.emit('rely', {
+        name: data.name,
+        answer: true
+    });
     navigator.mediaDevices.getUserMedia({
             "audio": true,
             "video": true
         })
         .then((stream) => {
             pc.addStream(stream);
-            pc.ontrack = handleRemoteStream;
-            pc.oniceconnectionstatechange = handleIceConnectionStateChange;
-            pc.onicecandidate = function(event) {
-                if (event.candidate) {
-                    console.log("handleIceCandidate");
-                    sendMessage(name, "candidate", event.candidate);
-                    console.log(name);
-                }
-            };
             local.src = window.URL.createObjectURL(stream);
-            socket.emit('rely', {
-                name: data.name,
-                answer: true
-            });
-
-
+            socket.emit('ready');
         })
         .catch(errorLog);
     socket.on('on_receive_message', function(msg) {
