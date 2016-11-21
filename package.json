@@ -15,7 +15,9 @@
     "express": "^4.14.0",
     "jquery": "^3.1.1",
     "lodash": "^4.16.6",
+    "redis": "^2.6.3",
     "socket.io": "^1.5.1",
-    "webrtc-adapter": "^2.0.6"
+    "webrtc-adapter": "^2.0.6",
+    "wolfy87-eventemitter": "^5.1.0"
   }
 }

@@ -13,12 +13,6 @@ var constraints = {
     offerToReceiveAudio: 1,
     offerToReceiveVideo: 1
 };
-var local = document.getElementById('local');
-var remote = document.getElementById('remote');
-var buttonCall = $('#call');
-var inputCallee = $('#callee');
-var buttonLogin = $('#login');
-var inputName = $('#name');
 var socket = io();
 socket.on('connect', () => {
     console.log('thanh cong!');

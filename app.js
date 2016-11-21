@@ -2,31 +2,55 @@ var express = require('express');
 var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
+var redis = require("redis");
+var redisClient = redis.createClient();
+
+redisClient.on("error", function (err) {
+    console.log("Error " + err);
+    process.exit(0);
+});
+
 server.listen(process.env.PORT || 3000, () => {
     console.log('Server running at port 3000!');
 });
 app.use('/', express.static(__dirname + '/public'));
 app.use('/', express.static(__dirname + '/node_modules/jquery/dist'));
 app.use('/', express.static(__dirname + '/node_modules/webrtc-adapter'));
-app.use('/', express.static(__dirname+ '/node_modules/detectrtc'));
-app.use('/', express.static(__dirname+'/node_modules/bootstrap/dist'));
+app.use('/', express.static(__dirname + '/node_modules/detectrtc'));
+app.use('/', express.static(__dirname + '/node_modules/bootstrap/dist'));
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/public/index.html');
 });
-console.log(__dirname);
 var list = [];
 var _ = require('lodash');
 io.on('connection', (socket) => {
-    console.log('socket');
+    console.log('There\'s person connect!');
     socket.on('login', (data) => {
-        socket.join(data.name);
-        list.push({
-            socket: socket.id,
-            name: data.name
+        var name = data.name;
+        redisClient.sadd('list', (err, reply)=>{
+            if(err){
+                console.log('Insert err!');
+                socket.emit('resultLogin', {
+                    status: 101
+                });
+                return;
+            }
+            console.log('Insert successfull! '+ reply);
+            socket.emit('resultLogin', {
+                status: 100
+            });
+            socket.join(name);
+            console.log(name);
         });
-        console.log(data.name);
     });
     socket.on('call', (data) => {
+        var name = data.name;
+        redisClient.sismember('list', (err, rely)=>{
+            if(err){
+                console.log('Check error!');
+                
+            }
+        });
         var index = _.findIndex(list, {
             socket: socket.id
         });
@@ -36,7 +60,7 @@ io.on('connection', (socket) => {
         socket.broadcast.to(data.name).emit('waitForCaller', {
             name: list[index].name
         });
-        socket.once('callerReady', ()=>{
+        socket.once('callerReady', () => {
             socket.broadcast.to(data.name).emit('callerReady');
         });
         console.log(data.name + ' ' + list[index].name);

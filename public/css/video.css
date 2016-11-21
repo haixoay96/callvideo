@@ -8,5 +8,10 @@
 
 }
 #local{
+	float: left;
 	background: green;
+}
+#remote {
+	background: red;
+	float: left;
 }
