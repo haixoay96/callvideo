@@ -1,3 +1,18 @@
+var socket = io();
+$('#buttonLogin').on('click', function () {
+    var name = $('#inputLogin').val();
+    socket.emit('login', {
+        name: name
+    });
+    $('#login-modal').modal('toggle')
+    socket.once('resultLogin', function (data) {
+        alert(data.status);
+    });
+});
+
+
+
+
 var config = {
     'iceServers': [{
         'urls': 'stun:stun.l.google.com:19302'
@@ -13,16 +28,9 @@ var constraints = {
     offerToReceiveAudio: 1,
     offerToReceiveVideo: 1
 };
-var socket = io();
+
 socket.on('connect', () => {
     console.log('thanh cong!');
-});
-buttonLogin.on('click', () => {
-    socket.emit('login', {
-        name: inputName.val()
-    });
-    $('#control').hide();
-    $('#display').show();
 });
 buttonCall.on('click', function() {
     console.log('goi');
@@ -138,7 +146,6 @@ socket.on('waitForCaller', (data) => {
 });
 
 
-
 function makeOffer(pc) {
     pc.createOffer(constraints)
         .then(function(offer) {
@@ -165,10 +172,11 @@ function handleIceConnectionStateChange(event) {
     }
 };
 
-function sendMessage(to, type, payload) {
+function sendMessage(name,codeCall, type, payload) {
     console.log('[sendMessage]', to, type, payload);
     var msg = {
-        to: to,
+        name: name,
+        codeCall: codeCall,
         type: type,
         payload: payload
     };
