@@ -8,10 +8,13 @@
 
 }
 #local{
+	margin-left: 10px;
+	width: 30%;
 	float: left;
 	background: green;
 }
 #remote {
+	width: 60%;
 	background: red;
 	float: left;
 }

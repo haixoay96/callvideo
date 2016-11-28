@@ -6,6 +6,22 @@ var redis = require("redis");
 var redisClient = redis.createClient();
 var _ = require('lodash');
 var handleIo = require('./handleSocket/io.js').handleIo;
+redisClient.del('list', (err, rely) => {
+    console.log(err);
+    console.log(rely);
+});
+redisClient.on('ready', () => {
+    console.log('Redis is ready!');
+});
+redisClient.on('connect', () => {
+    console.log('Redis connect!');
+})
+redisClient.on('reconnecting', () => {
+    console.log('Redis is reconnecting!');
+});
+redisClient.on('end', () => {
+    console.log('Redis end!');
+});
 redisClient.on("error", function(err) {
     console.log("Error " + err);
     process.exit(0);

@@ -1,4 +1,3 @@
-var handleCalleeReady = require('./')
 var handleRely = (socket) => {
     socket.on('rely', (data) => {
         if (socket.name) {

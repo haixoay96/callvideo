@@ -5,7 +5,7 @@ var handleCall = (socket, redisClient) => {
         if (socket.name) {
             redisClient.sismember('list', name, (err, rely) => {
                 if (err) {
-                    console.log('Error system '__dirname);
+                    console.log('Error system '+__dirname);
                     socket.emit('errorCall', {
                         errorCode: 102
                     });

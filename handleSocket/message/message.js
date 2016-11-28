@@ -4,7 +4,7 @@ var handleMessage = (socket) => {
             var name = data.name;
             var codeCall = data.codeCall;
             var type = data.type;
-            var payload: data.payload;
+            var payload = data.payload;
             socket.broadcast.to(name).emit('on_receive_message', {
                 name: socket.name,
                 codeCall: codeCall,
@@ -16,4 +16,4 @@ var handleMessage = (socket) => {
         console.log(socket.id + ' been not login! ' + __dirname);
     });
 }
-module.exports.handleMessage = handleMessages;
+module.exports.handleMessage = handleMessage;

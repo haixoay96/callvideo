@@ -12,4 +12,4 @@ var handleCalleeReady = (socket) => {
         console.log(socket.id + ' been not login! ' + __dirname);
     });
 }
-module.exports.handleCalleeReady;
+module.exports.handleCalleeReady = handleCalleeReady;

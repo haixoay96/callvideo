@@ -1,16 +1,14 @@
 var socket = io();
-$('#buttonLogin').on('click', function () {
+$('#buttonLogin').on('click', function() {
     var name = $('#inputLogin').val();
     socket.emit('login', {
         name: name
     });
     $('#login-modal').modal('toggle')
-    socket.once('resultLogin', function (data) {
+    socket.once('resultLogin', function(data) {
         alert(data.status);
     });
 });
-
-
 
 
 var config = {
@@ -32,47 +30,57 @@ var constraints = {
 socket.on('connect', () => {
     console.log('thanh cong!');
 });
-buttonCall.on('click', function() {
+$('#buttonCall').on('click', function() {
     console.log('goi');
-    var name = inputCallee.val();
+    var name = $('#inputCall').val();
     var pc = new RTCPeerConnection(config);
-
+    var codeCall = 1; // code room
     socket.emit('call', {
-        name: name
+        name: name,
+        codeCall: codeCall
     });
-
     socket.on('resultCall', function(data) {
-        if (data.answer === true) {
-            pc.ontrack = handleRemoteStream;
-            pc.oniceconnectionstatechange = handleIceConnectionStateChange;
-            pc.onicecandidate = function(event) {
-                if (event.candidate) {
-                    console.log("handleIceCandidate");
+        if (codeCall !== data.codeCall) {
+            return;
+        }
+        if (!data.answer) {
+            return;
+        }
+        pc.ontrack = handleRemoteStream;
+        pc.oniceconnectionstatechange = handleIceConnectionStateChange;
+        pc.onicecandidate = function(event) {
+            if (event.candidate) {
+                console.log("handleIceCandidate");
+                console.log(name);
+                sendMessage(name, codeCall, "candidate", event.candidate);
+            }
+        };
+        navigator.mediaDevices.getUserMedia({
+                "audio": true,
+                "video": true
+            })
+            .then(function(stream) {
+                pc.addStream(stream);
+                $('#local').attr('src', window.URL.createObjectURL(stream));
+                socket.emit('callerReady', {
+                    name: name,
+                    codeCall: codeCall
+                });
+            })
+            .catch(errorLog);
+        socket.on('calleeReady', function(data) {
+            if (data.codeCall !== codeCall) {
+                return;
+            }
+            pc.createOffer(constraints)
+                .then(function(offer) {
+                    console.log("Create offer for ", name);
+                    pc.setLocalDescription(offer);
                     console.log(name);
-                    sendMessage(name, "candidate", event.candidate);
-                }
-            };
-            navigator.mediaDevices.getUserMedia({
-                    "audio": true,
-                    "video": true
-                })
-                .then(function(stream) {
-                    pc.addStream(stream);
-                    local.src = window.URL.createObjectURL(stream);
-                    socket.emit('callerReady');
+                    sendMessage(name, codeCall, "offer", offer);
                 })
                 .catch(errorLog);
-            socket.once('calleeReady', function(data) {
-                pc.createOffer(constraints)
-                    .then(function(offer) {
-                        console.log("Create offer for ", name);
-                        pc.setLocalDescription(offer);
-                        console.log(name);
-                        sendMessage(name, "offer", offer);
-                    })
-                    .catch(errorLog);
-            });
-        }
+        });
     });
     socket.on('on_receive_message', function(msg) {
         if (msg.type === "candidate") {
@@ -82,7 +90,7 @@ buttonCall.on('click', function() {
             pc.createAnswer()
                 .then(function(answer) {
                     pc.setLocalDescription(answer);
-                    sendMessage(name, "answer", answer);
+                    sendMessage(name, codeCall, "answer", answer);
                     console.log(name);
                 })
                 .catch(errorLog);
@@ -91,40 +99,48 @@ buttonCall.on('click', function() {
             pc.setRemoteDescription(new RTCSessionDescription(msg.payload));
         }
     });
-});
 
+});
 socket.on('waitForCaller', (data) => {
+    if (!confirm('Leave This Conference?')) {
+        return;
+    };
+    var codeCall = data.codeCall;
+    var name = data.name;
     console.log('nhan');
     var pc = new RTCPeerConnection(config);
-    var name = data.name;
     pc.ontrack = handleRemoteStream;
     pc.oniceconnectionstatechange = handleIceConnectionStateChange;
     pc.onicecandidate = function(event) {
         if (event.candidate) {
             console.log("handleIceCandidate");
-            sendMessage(name, "candidate", event.candidate);
+            sendMessage(name, codeCall, "candidate", event.candidate);
             console.log(name);
         }
     };
     socket.emit('rely', {
         name: data.name,
-        answer: true
+        answer: true,
+        codeCall: codeCall
     });
-    socket.once('callerReady', function () {
+    socket.on('callerReady', function(data) {
+        if (codeCall !== data.codeCall) {
+            return;
+        }
         navigator.mediaDevices.getUserMedia({
                 "audio": true,
                 "video": true
             })
             .then((stream) => {
                 pc.addStream(stream);
-                local.src = window.URL.createObjectURL(stream);
-                socket.emit('calleeReady');
+                $('#local').attr('src', window.URL.createObjectURL(stream));
+                socket.emit('calleeReady', {
+                    name: name,
+                    codeCall: codeCall
+                });
             })
             .catch(errorLog);
-
-
     });
-
     socket.on('on_receive_message', function(msg) {
         if (msg.type === "candidate") {
             pc.addIceCandidate(new RTCIceCandidate(msg.payload));
@@ -134,7 +150,7 @@ socket.on('waitForCaller', (data) => {
             pc.createAnswer()
                 .then(function(answer) {
                     pc.setLocalDescription(answer);
-                    sendMessage(name, "answer", answer);
+                    sendMessage(name, codeCall, "answer", answer);
                     console.log(name);
                 })
                 .catch(errorLog);
@@ -158,7 +174,7 @@ function makeOffer(pc) {
 
 function handleRemoteStream(event) {
     console.log('remote');
-    remote.src = window.URL.createObjectURL(event.streams[0]);
+    $('#remote').attr('src', window.URL.createObjectURL(event.streams[0]));
 }
 
 function handleIceConnectionStateChange(event) {
@@ -172,8 +188,8 @@ function handleIceConnectionStateChange(event) {
     }
 };
 
-function sendMessage(name,codeCall, type, payload) {
-    console.log('[sendMessage]', to, type, payload);
+function sendMessage(name, codeCall, type, payload) {
+    console.log('[sendMessage]', name, type, payload);
     var msg = {
         name: name,
         codeCall: codeCall,
