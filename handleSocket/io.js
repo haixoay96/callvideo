@@ -5,11 +5,12 @@ var handleCallerReady = require('./callerReady/callerReady').handleCallerReady;
 var handleMessage = require('./message/message.js').handleMessage;
 var handleDisconnect = require('./disconnect/disconnect.js').handleDisconnect;
 var handleRely = require('./rely/rely.js').handleRely;
-var handleIo = (io, redisClient) => {
+var handleIo = (io) => {
     io.on('connection', (socket) => {
-        handleLogin(socket, redisClient);
-        handleCall(socket, redisClient);
-        handleDisconnect(socket, redisClient);
+        console.log(socket.id + ' connected');
+        handleLogin(socket);
+        handleCall(socket);
+        handleDisconnect(socket);
         handleRely(socket);
         handleMessage(socket);
         handleCallerReady(socket);

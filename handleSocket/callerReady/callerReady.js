@@ -1,4 +1,4 @@
-var handleCallerReady = (socket, name) => {
+var handleCallerReady = (socket) => {
     socket.once('callerReady', (data) => {
         if (socket.name) {
             var name = data.name;

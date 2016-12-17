@@ -5,6 +5,7 @@ var handleMessage = (socket) => {
             var codeCall = data.codeCall;
             var type = data.type;
             var payload = data.payload;
+            console.log(name + ' send ' + type + ' to ' + socket.name +' '+ __dirname);
             socket.broadcast.to(name).emit('on_receive_message', {
                 name: socket.name,
                 codeCall: codeCall,

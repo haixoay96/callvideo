@@ -1,19 +1,16 @@
-var handleDisconnect = (socket, redisClient) => {
+var listUser = require('../../utils/listUser.js');
+var _ = require('lodash');
+var handleDisconnect = (socket) => {
     socket.on('disconnect', () => {
-        console.log(socket.name);
         if (socket.name) {
-            redisClient.srem('list', socket.name, (err, rely) => {
-                if (err) {
-                    console.log('Remove err ' + __dirname);
-                    return;
-                }
-                if (rely === 0) {
-                    console.log('Not found ' + socket.name + '! ' + __dirname);
-                }
-                console.log('Remove successfull!');
-            });
+            var index = _.indexOf(listUser, socket.name);
+            if(index!==-1){
+                console.log('Remove '+ socket.name + ' successfull '+ __dirname);
+                listUser.splice(index, 1);
+            }
         }
         console.log(socket.id + ' disconnected! ' + __dirname);
+        console.log(listUser);
     });
 }
 module.exports.handleDisconnect = handleDisconnect;
