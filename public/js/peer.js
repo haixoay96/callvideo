@@ -12,17 +12,16 @@ var constraints = {
     offerToReceiveAudio: 1,
     offerToReceiveVideo: 1
 };
-
 function peer(nameId) {
     //login
     var point = this;
-    var socket = io();
-    var codeCall = undefined;
-    var pc;
-    socket.emit('login', {
+    this.socket = io();
+    this.codeCall = undefined;
+    this.pc = undefined;
+    this.socket.emit('login', {
         name: nameId
     });
-    socket.once('resultLogin', function(data) {
+    this.socket.once('resultLogin', function(data) {
         setTimeout(function() {
             if (point.onLogin) {
                 point.onLogin(data);
@@ -30,18 +29,18 @@ function peer(nameId) {
         }, 0);
         console.log(data.status);
     });
-    socket.on('on_receive_message', function(msg) {
-        if(pc=== undefined  || codeCall !== msg.codeCall){
+    this.socket.on('on_receive_message', function(msg) {
+        if (point.pc === undefined || point.codeCall !== msg.codeCall) {
             return;
         }
         if (msg.type === "candidate") {
-            pc.addIceCandidate(new RTCIceCandidate(msg.payload));
+            point.pc.addIceCandidate(new RTCIceCandidate(msg.payload));
         } else if (msg.type === "offer") {
-            pc.setRemoteDescription(new RTCSessionDescription(msg.payload));
-            pc.createAnswer()
+            point.pc.setRemoteDescription(new RTCSessionDescription(msg.payload));
+            point.pc.createAnswer()
                 .then(function(answer) {
-                    pc.setLocalDescription(answer);
-                    sendMessage(msg.name, codeCall, "answer", answer);
+                    point.pc.setLocalDescription(answer);
+                    sendMessage(msg.name, point.codeCall, "answer", answer);
                     console.log(name);
                 })
                 .catch(function(error) {
@@ -49,12 +48,12 @@ function peer(nameId) {
                 });
         } else if (msg.type === "answer") {
             console.log('nhan answer');
-            pc.setRemoteDescription(new RTCSessionDescription(msg.payload));
+            point.pc.setRemoteDescription(new RTCSessionDescription(msg.payload));
         }
     });
     // when is called
-    socket.on('waitForCaller', function(data) {
-        codeCall = data.codeCall;
+    this.socket.on('waitForCaller', function(data) {
+        point.codeCall = data.codeCall;
         var name = data.name;
         setTimeout(function() {
             if (point.onCall) {
@@ -63,15 +62,18 @@ function peer(nameId) {
         }, 0);
         point.reply = function(answer) {
             if (!answer) {
-                socket.emit('rely', {
-                    name: data.name,
+                console.log(point.codeCall);
+                console.log(answer);
+                point.clean();
+                point.socket.emit('rely', {
+                    name: name,
                     answer: false,
-                    codeCall: codeCall
+                    codeCall: data.codeCall
                 });
                 return;
             }
-            pc = new RTCPeerConnection(config);
-            pc.onaddstream = function(event) {
+            point.pc = new RTCPeerConnection(config);
+            point.pc.onaddstream = function(event) {
                 console.log('remote');
                 console.log(event.stream);
                 setTimeout(function() {
@@ -80,21 +82,21 @@ function peer(nameId) {
                     }
                 }, 0);
             };
-            pc.oniceconnectionstatechange = handleIceConnectionStateChange;
-            pc.onicecandidate = function(event) {
+            point.pc.oniceconnectionstatechange = handleIceConnectionStateChange;
+            point.pc.onicecandidate = function(event) {
                 if (event.candidate) {
                     console.log("handleIceCandidate");
-                    sendMessage(name, codeCall, "candidate", event.candidate);
+                    sendMessage(name, point.codeCall, "candidate", event.candidate);
                     console.log(name);
                 }
             };
-            socket.emit('rely', {
-                name: data.name,
+            point.socket.emit('rely', {
+                name: name,
                 answer: true,
-                codeCall: codeCall
+                codeCall: point.codeCall
             });
-            socket.on('callerReady', function(data) {
-                if (codeCall !== data.codeCall) {
+            point.socket.on('callerReady', function(data) {
+                if (point.codeCall !== data.codeCall) {
                     return;
                 }
                 navigator.mediaDevices.getUserMedia({
@@ -103,10 +105,11 @@ function peer(nameId) {
                     })
                     .then((stream) => {
                         console.log('local');
-                        pc.addStream(stream);
-                        socket.emit('calleeReady', {
+                        point.pc.addStream(stream);
+                        point.localStream = stream;
+                        point.socket.emit('calleeReady', {
                             name: name,
-                            codeCall: codeCall
+                            codeCall: point.codeCall
                         });
                         setTimeout(function() {
                             if (point.onLocalStream) {
@@ -123,21 +126,23 @@ function peer(nameId) {
     });
 
     // when call
-    point.call = function(name) {
-        if(pc !== undefined){
+    this.call = function(name) {
+        if (this.pc !== undefined) {
             console.log('Khong ther goi');
             return;
         }
         console.log('Bắt đầu gọi!');
-        pc = new RTCPeerConnection(config);
-        codeCall = 1; // code room
-        socket.emit('call', {
+        this.pc = new RTCPeerConnection(config);
+        this.codeCall = Date.now().toString(); // code room
+        this.socket.emit('call', {
             name: name,
-            codeCall: codeCall
+            codeCall: point.codeCall
         });
-        socket.on('resultCall', function(data) {
+        this.socket.on('resultCall', function(data) {
+            console.log(data);
             if (data.status === 101) {
                 console.log(name + ' không sẵn sàng ');
+                point.clean();
                 setTimeout(function() {
                     if (point.onReject) {
                         point.onReject();
@@ -145,11 +150,13 @@ function peer(nameId) {
                 }, 0);
                 return;
             }
-            if (codeCall !== data.codeCall) {
+            if (point.codeCall !== data.codeCall) {
+                console.log('sai codeCall');
                 return;
             }
             if (!data.answer) {
                 console.log(name + ' từ chối cuộc gọi');
+                point.clean();
                 setTimeout(function() {
                     if (point.onReject) {
                         point.onReject();
@@ -159,7 +166,7 @@ function peer(nameId) {
             }
             console.log(name + ' đồng ý cuộc gọi');
             // prepare
-            pc.onaddstream = function(event) {
+            point.pc.onaddstream = function(event) {
                 console.log('remote');
                 console.log(event.stream);
                 setTimeout(function() {
@@ -168,12 +175,12 @@ function peer(nameId) {
                     }
                 }, 0);
             };
-            pc.oniceconnectionstatechange = handleIceConnectionStateChange;
-            pc.onicecandidate = function(event) {
+            point.pc.oniceconnectionstatechange = handleIceConnectionStateChange;
+            point.pc.onicecandidate = function(event) {
                 if (event.candidate) {
                     console.log("handleIceCandidate");
                     console.log(name);
-                    sendMessage(name, codeCall, "candidate", event.candidate);
+                    sendMessage(name, point.codeCall, "candidate", event.candidate);
                 }
             };
             // get stream
@@ -183,11 +190,13 @@ function peer(nameId) {
                 })
                 .then(function(stream) {
                     console.log('local');
-                    pc.addStream(stream);
-                    socket.emit('callerReady', {
+                    point.pc.addStream(stream);
+                    point.localStream = stream;
+                    point.socket.emit('callerReady', {
                         name: name,
-                        codeCall: codeCall
+                        codeCall: point.codeCall
                     });
+                    console.log('da gui');
                     setTimeout(function() {
                         if (point.onLocalStream) {
                             point.onLocalStream(stream);
@@ -195,16 +204,16 @@ function peer(nameId) {
                     }, 0);
                 })
                 .catch(function(error) {});
-            socket.on('calleeReady', function(data) {
-                if (data.codeCall !== codeCall) {
+                point.socket.on('calleeReady', function(data) {
+                if (data.codeCall !== point.codeCall) {
                     return;
                 }
-                pc.createOffer(constraints)
+                point.pc.createOffer(constraints)
                     .then(function(offer) {
                         console.log("Create offer for ", name);
-                        pc.setLocalDescription(offer);
+                        point.pc.setLocalDescription(offer);
                         console.log(name);
-                        sendMessage(name, codeCall, "offer", offer);
+                        sendMessage(name, point.codeCall, "offer", offer);
                     })
                     .catch(function(error) {
                         console.log(error);
@@ -213,14 +222,43 @@ function peer(nameId) {
         });
     };
 
-    function handleIceConnectionStateChange(event) {
-        var pc = event.target;
-        console.log('[handleIceConnectionStateChange]', pc.iceConnectionState)
-        if (pc.iceConnectionState == 'closed') {
 
+    this.clean = function() {
+        console.log('Close');
+        delete this.pc;
+        this.codeCall = undefined;
+
+        this.socket.removeAllListeners('calleeReady');
+        this.socket.removeAllListeners('callerReady');
+        this.socket.removeAllListeners('resultCall');
+    }
+    this.hangup = function() {
+        if (this.pc) {
+            this.pc.close();
         }
-        if (pc.iceConnectionState == 'connected') {
 
+    };
+    this.stopStream = function() {
+        if (this.localStream) {
+            this.localStream.getAudioTracks()[0].stop();
+            this.localStream.getVideoTracks()[0].stop();
+            delete this.localStream;
+        }
+    };
+
+    function handleIceConnectionStateChange(event) {
+        var pcx = event.target;
+        console.log('[handleIceConnectionStateChange]', pcx.iceConnectionState)
+        if (pcx.iceConnectionState === 'closed' || pcx.iceConnectionState === 'disconnected' || pcx.iceConnectionState === 'failed') {
+            point.clean();
+            point.stopStream();
+            setTimeout(function() {
+                point.onClose();
+            }, 0);
+            console.log('hangup');
+        }
+        if (pcx.iceConnectionState == 'connected') {
+            console.log('Call successdull');
         }
     };
 
@@ -232,7 +270,7 @@ function peer(nameId) {
             type: type,
             payload: payload
         };
-        socket.emit('message', msg);
+        point.socket.emit('message', msg);
     };
 
 };

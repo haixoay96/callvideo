@@ -7,7 +7,8 @@ $('#buttonLogin').on('click', function() {
     };
     pc.onCall = function(name) {
         if (!confirm('Leave This Conference?')) {
-            pc.rely(false);
+            console.log('tu choi');
+            pc.reply(false);
             return;
         };
         pc.reply(true);
@@ -19,16 +20,22 @@ $('#buttonLogin').on('click', function() {
         $('#remote').attr('src', window.URL.createObjectURL(stream));
     };
     pc.onClose = function () {
+        console.log('close');
 
     };
+
+    //call pc.hangup() when want to finish
 });
 
 //  $('#login-modal').modal('toggle')
-
+$('#hangup').on('click', function () {
+    pc.hangup();
+});
 
 $('#buttonCall').on('click', function() {
     var name = $('#inputCall').val();
     pc.call(name);
+    //call when want cancel call pc.cancelCall();
     pc.onReject = function() {
         console.log('Tu choi');
     };
@@ -39,6 +46,7 @@ $('#buttonCall').on('click', function() {
         $('#remote').attr('src', window.URL.createObjectURL(stream));
     };
     pc.onClose = function () {
-
+        console.log('close');
     };
+    //call pc.hangup() when want to finish
 });

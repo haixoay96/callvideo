@@ -1,6 +1,7 @@
 var handleCallerReady = (socket) => {
-    socket.once('callerReady', (data) => {
+    socket.on('callerReady', (data) => {
         if (socket.name) {
+            console.log('callerReady');
             var name = data.name;
             var codeCall = data.codeCall;
             socket.broadcast.to(name).emit('callerReady', {

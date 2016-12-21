@@ -4,7 +4,8 @@ var handleRely = (socket) => {
             var name = data.name;
             var codeCall = data.codeCall;
             var answer = data.answer;
-            console.log(socket.name + ' rely ' + name + ' ' + __dirname);
+            console.log(data);
+            console.log(socket.name + ' rely ' + name +' '+ answer+  ' ' + __dirname);
             socket.broadcast.to(name).emit('resultCall', {
                 status: 100,
                 answer: answer,
