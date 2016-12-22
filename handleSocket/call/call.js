@@ -16,7 +16,9 @@ var handleCall = (socket) => {
             }
             console.log('Not found callee! ' + __dirname);
             socket.emit('resultCall', {
-                status: 101
+                status: 101,
+                name: name,
+                codeCall: codeCall
             });
         }
     });

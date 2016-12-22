@@ -1,6 +1,11 @@
 var express = require('express');
 var app = express();
-var server = require('http').Server(app);
+var fs = require('fs');
+var options = {
+    key: fs.readFileSync('key.pem'),
+    cert: fs.readFileSync('cert.pem')
+};
+var server = require('https').Server(options, app);
 var io = require('socket.io')(server);
 var handleIo = require('./handleSocket/io.js').handleIo;
 

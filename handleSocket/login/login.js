@@ -1,7 +1,7 @@
 var listUser = require('../../utils/listUser.js');
 var _ = require('lodash');
 var handleLogin = (socket) => {
-    socket.on('login', (data) => {
+    socket.on('login', (data, fn) => {
         if (socket.name) {
             console.log('Socket already login! ' + __dirname);
             socket.emit('resultLogin', {
@@ -16,15 +16,21 @@ var handleLogin = (socket) => {
             listUser.push(name);
             socket.name = name;
             socket.join(name);
-            socket.emit('resultLogin', {
+            fn({
                 status: 100
             });
+            /*socket.emit('resultLogin', {
+                status: 100
+            });*/
             return;
         }
         console.log(name + ' have logined! ' + __dirname);
-        socket.emit('resultLogin', {
+        fn({
             status: 101
         });
+        /*socket.emit('resultLogin', {
+            status: 101
+        });*/
     });
 }
 module.exports.handleLogin = handleLogin;
