@@ -133,6 +133,15 @@ function peer(nameId) {
     });
     // waiting caller
     this.socket.on('waitForCaller', function(data) {
+        if (point.codeCall !== undefined) {
+            console.log('Đang bận');
+            point.socket.emit('rely', {
+                name: data.name,
+                answer: false,
+                codeCall: data.codeCall
+            });
+            return;
+        }
         point.codeCall = data.codeCall;
         var name = data.name;
         setTimeout(function() {
@@ -240,7 +249,7 @@ function peer(nameId) {
 
     // function clean
     this.clean = function() {
-            console.log('Close');
+            console.log('Clean');
             delete this.pc;
             this.codeCall = undefined;
         }
@@ -248,6 +257,8 @@ function peer(nameId) {
     this.hangup = function() {
         if (this.pc) {
             this.pc.close();
+            point.clean();
+            point.stopStream();
         }
 
     };
@@ -263,20 +274,19 @@ function peer(nameId) {
         var pcx = event.target;
         console.log('[handleIceConnectionStateChange]', pcx.iceConnectionState)
         if (pcx.iceConnectionState === 'closed') {
-            point.clean();
-            point.stopStream();
 
             console.log('hangup');
         }
         if (pcx.iceConnectionState === 'disconnected') {
 
         }
-        if (pcx.iceConnectionState = 'failed') {
+        if (pcx.iceConnectionState === 'failed') {
+            point.hangup();
             setTimeout(function() {
                 point.onClose();
             }, 0);
         }
-        if (pcx.iceConnectionState == 'connected') {
+        if (pcx.iceConnectionState === 'connected') {
             console.log('Call successdull');
         }
     };
