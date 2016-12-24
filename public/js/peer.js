@@ -23,9 +23,9 @@ function peer(nameId) {
     this.socket.on('disconnect', function() {
         console.log('disconect');
     });
-    this.socket.on('connect', () => {
+    this.socket.on('connect', function() {
         console.log('connect');
-        this.socket.emit('login', {
+        point.socket.emit('login', {
             name: nameId
         }, function(data) {
             console.log('login successdull!');
@@ -108,6 +108,19 @@ function peer(nameId) {
             })
             .catch(function(error) {});
     });
+
+    this.socket.on('on_cancel', function(data) {
+        if (point.codeCall !== data.codeCall || point.pc === undefined) {
+            return;
+        }
+        delete point.codeCall;
+        delete point.pc;
+        setTimeout(function() {
+            if (point.onCancel) {
+                point.onCancel();
+            }
+        }, 0);
+    });
     // tranfer message
     this.socket.on('on_receive_message', function(msg) {
         if (point.pc === undefined || point.codeCall !== msg.codeCall) {
@@ -150,6 +163,9 @@ function peer(nameId) {
             }
         }, 0);
         point.reply = function(answer) {
+            if(point.codeCall === undefined){
+                return;
+            }
             if (!answer) {
                 console.log(point.codeCall);
                 console.log(answer);
@@ -231,7 +247,14 @@ function peer(nameId) {
                 console.log(error);
             });
     });
-
+    point.cancelCall = function() {
+        if (point.codeCall !== undefined) {
+            socket.emit('cancelCall', {
+                codeCall: point.codeCall
+            });
+            point.clean();
+        }
+    };
     // when call
     this.call = function(name) {
         if (this.pc !== undefined) {

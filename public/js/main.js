@@ -19,6 +19,9 @@ $('#buttonLogin').on('click', function() {
     pc.onRemoteStream = function(stream) {
         $('#remote').attr('src', window.URL.createObjectURL(stream));
     };
+    pc.onCancel = function () {
+
+    };
     pc.onClose = function () {
         console.log('close');
 
@@ -35,6 +38,9 @@ $('#hangup').on('click', function () {
 $('#buttonCall').on('click', function() {
     var name = $('#inputCall').val();
     pc.call(name);
+    setTimeout(function () {
+        pc.cancelCall();
+    }, 40000);
     //call when want cancel call pc.cancelCall();
     pc.onReject = function() {
         console.log('Tu choi');
