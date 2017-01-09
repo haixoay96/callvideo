@@ -4,13 +4,15 @@ var handleCall = (socket) => {
     socket.on('call', (data) => {
         var name = data.name;
         var codeCall = data.codeCall;
+        var video = data.video;
         if (socket.name) {
             var index = _.indexOf(listUser, name);
             if (index !== -1) {
                 console.log(socket.name + ' calling to ' + name);
                 socket.broadcast.to(name).emit('waitForCaller', {
                     name: socket.name,
-                    codeCall: data.codeCall
+                    video: video,
+                    codeCall: codeCall
                 });
                 return;
             }

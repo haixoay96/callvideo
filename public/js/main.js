@@ -5,12 +5,14 @@ $('#buttonLogin').on('click', function() {
     pc.onLogin = function(data) {
         alert(data);
     };
-    pc.onCall = function(name) {
+    pc.onCall = function(name, video) {
+        console.log(video);
         if (!confirm('Leave This Conference?')) {
             console.log('tu choi');
             pc.reply(false);
             return;
         };
+        console.log('Dong ý');
         pc.reply(true);
     };
     pc.onLocalStream = function(stream) {
@@ -37,7 +39,7 @@ $('#hangup').on('click', function () {
 
 $('#buttonCall').on('click', function() {
     var name = $('#inputCall').val();
-    pc.call(name);
+    pc.call(name,true);
     setTimeout(function () {
         pc.cancelCall();
     }, 40000);

@@ -4,7 +4,7 @@ var handleCalleeReady = require('./calleeReady/calleeReady').handleCalleeReady;
 var handleCallerReady = require('./callerReady/callerReady').handleCallerReady;
 var handleMessage = require('./message/message.js').handleMessage;
 var handleDisconnect = require('./disconnect/disconnect.js').handleDisconnect;
-var handleRely = require('./rely/rely.js').handleRely;
+var handleReply = require('./reply/reply.js').handleReply;
 var handleCancelCall = require('./cancelCall/cancelCall.js').handleCancelCall;
 var handleIo = (io) => {
     io.on('connection', (socket) => {
@@ -13,7 +13,7 @@ var handleIo = (io) => {
         handleCall(socket);
         handleCancelCall(socket);
         handleDisconnect(socket);
-        handleRely(socket);
+        handleReply(socket);
         handleMessage(socket);
         handleCallerReady(socket);
         handleCalleeReady(socket);

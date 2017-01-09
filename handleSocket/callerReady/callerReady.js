@@ -1,5 +1,6 @@
 var handleCallerReady = (socket) => {
     socket.on('callerReady', (data) => {
+        console.log(data);
         if (socket.name) {
             console.log('callerReady');
             var name = data.name;
